@@ -118,4 +118,21 @@ public class Member {
     public String getBirth() {
         return birth;
     }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id='" + id + '\'' +
+                ", pw='" + pw + '\'' +
+                ", name='" + name + '\'' +
+                ", postcode='" + postcode + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", addressDetail='" + addressDetail + '\'' +
+                ", email='" + email + '\'' +
+                ", gender='" + gender + '\'' +
+                ", sns='" + sns + '\'' +
+                ", birth='" + birth + '\'' +
+                '}';
+    }
 }

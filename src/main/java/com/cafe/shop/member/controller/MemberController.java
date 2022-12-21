@@ -1,5 +1,6 @@
 package com.cafe.shop.member.controller;
 
+import com.cafe.shop.aop.Login;
 import com.cafe.shop.member.dto.Member;
 import com.cafe.shop.member.service.MemberService;
 import com.cafe.shop.product.service.ProductService;
@@ -18,79 +19,25 @@ public class MemberController {
     MemberService ms;
     @Autowired
     ProductService ps;
+
     @GetMapping("/selectUserCart")
     public List<HashMap<String,Object>> selectUserCart(HttpSession session){
-
         String id=String.valueOf(session.getAttribute("id"));
         return ms.selectUserCart(id);
     }
+
     @GetMapping("/selectCart")
     public List<HashMap<String,Object>>  selectCart(HttpSession session){
         String id=String.valueOf(((Member)session.getAttribute("id")).getId());
         return ms.selectCart(id);
     }
+
+    @Login
     @RequestMapping("/addCart")
     public @ResponseBody String addCart(@RequestBody(required = false) Object pocket, HttpSession session) {
-        String userid = null;
-        int total = 0;
         List<Map<String, String>> putList = new ArrayList<Map<String, String>>();
-        Map<String, String> accParam = new HashMap<>();
-
-        if (session.getAttribute("id") != null) {
-            //Map<String, String> account = (Map<String, String>) session.getAttribute("id");
-           // userid = account.get("ID");
-           // accParam.put("userid", userid);
-        } else {
-            return "loginFail";
-        }
-        String id=String.valueOf(((Member)session.getAttribute("id")).getId());
-
-        List<HashMap<String, Object>> cartSaved = ms.selectCart(id);
-
-        Map<String, List<LinkedHashMap<String, String>>> param = (Map<String, List<LinkedHashMap<String, String>>>) pocket;
-        List<LinkedHashMap<String, String>> cartList = param.get("pocket");
-        for (LinkedHashMap<String, String> one : cartList) {
-
-            String flag = "false";
-            int amount = 0;
-            String cate = "";
-
-            for (int i = 0; i < cartSaved.size(); i++) {
-                if (String.valueOf(cartSaved.get(i).get("productid")).equals(String.valueOf(one.get("id")))) {
-                    flag = "true";
-                    amount = Integer.parseInt(String.valueOf(cartSaved.get(i).get("amount")));
-                    cate = ((HashMap<String, Object>)cartSaved.get(i)).get("catename").toString();
-                }
-            }
-            int added = Integer.parseInt(String.valueOf(one.get("amount")));
-
-            Map<String, String> daoMap = new HashMap<>();
-            daoMap.put("productid", String.valueOf(one.get("id")));
-            daoMap.put("amount", added + "");
-            daoMap.put("userid", id);
-            daoMap.put("flag", flag);
-
-            if (flag.equals("false")) {
-                cate = one.get("cate");
-            }
-            daoMap.put("cate", cate);
-
-            if (cate.equals("쿠키")) {
-                if (added > 5) {
-                    return "amount";
-                }
-            }
-            putList.add(daoMap);
-
-        }
-
-        for (Map<String, String> cart : putList) {
-            if (cart.get("cate").equals("쿠키"))
-                total += Integer.parseInt(cart.get("amount"));
-        }
-        if (total > 14) {
-            return "amount";
-        }
+        if(!ms.addTempCart(pocket,String.valueOf(((Member)session.getAttribute("id")).getId()),putList)
+                || !ms.checkMaxAmount(putList))return "amount";
 
         for (Map<String, String> cart : putList) {
             String flag = cart.get("flag");
@@ -113,22 +60,14 @@ public class MemberController {
 
         return "success";
     }
+
+    @Login
     @PostMapping("/deleteCart")
     public String deleteCart(String id, HttpSession session) {
-        String userid = null;
         Map<String, String> accParam = new HashMap<>();
-        if (session.getAttribute("id") != null) {
-            accParam.put("userid", ((Member) session.getAttribute("id")).getId());
-            accParam.put("id", id);
-        } else {
-            return "loginFail";
-        }
-        int result = ms.deleteCart(accParam);
-        if (result == 1) {
-            return "success";
-        } else {
-            return "failed";
-        }
+        accParam.put("userid", ((Member) session.getAttribute("id")).getId());
+        accParam.put("id", id);
+        return ms.deleteCart(accParam);
     }
     @PostMapping("/selectAvailAmountCart")
     public String selectAvailAmountCart(String id) {
@@ -138,6 +77,7 @@ public class MemberController {
         return result + "";
     }
 
+    @Login
     @PostMapping("/confirmBuying")
     public  String confirmBuying(@RequestBody(required = false) Object pocket, HttpSession session) {
         String userid = null;
@@ -146,12 +86,8 @@ public class MemberController {
         List<Map<String, String>> putList = new ArrayList<Map<String, String>>();
         Map<String, String> accParam = new HashMap<>();
 
-        if (session.getAttribute("id") != null) {
-            userid=((Member) session.getAttribute("id")).getId();
-            accParam.put("userid", ((Member) session.getAttribute("id")).getId());
-        } else {
-            return "loginFail";
-        }
+        userid=((Member) session.getAttribute("id")).getId();
+        accParam.put("userid", ((Member) session.getAttribute("id")).getId());
 
         List<HashMap<String, Object>> cartSaved = ms.selectCart(userid);
 
@@ -220,6 +156,7 @@ public class MemberController {
 
     }
 
+    @Login
     @PostMapping("/confirmRest")
     public Object confirmRest(@RequestBody(required = false) Object pocket, HttpSession session) {
 
@@ -227,11 +164,8 @@ public class MemberController {
         Member m=(Member) session.getAttribute("id");
 
         Map<String, String> accParam = new HashMap<>();
-        if (session.getAttribute("id") != null) {
-           userid=((Member) session.getAttribute("id")).getId();
-        }else {
-            return "loginFail";
-        }
+        userid=((Member) session.getAttribute("id")).getId();
+
 
         Map<String, List<LinkedHashMap<String, String>>> param = (Map<String, List<LinkedHashMap<String, String>>>) pocket;
 
@@ -298,16 +232,14 @@ public class MemberController {
         }
 
     }
+
+    @Login
     @GetMapping("/checkOrder")
     public Object checkOrder(String id, HttpSession session) {
 
         String userid = null;
         Map<String, String> accParam = new HashMap<>();
-        if (session.getAttribute("id") != null) {
-            userid=((Member) session.getAttribute("id")).getId();
-        }else {
-            return "loginFail";
-        }
+        userid=((Member) session.getAttribute("id")).getId();
         HashMap<String, String> account =new HashMap<>();
         account.put("userid", userid);
         account.put("id",  id);

@@ -1,5 +1,6 @@
 package com.cafe.shop.page.controller;
 
+import com.cafe.shop.aop.NonLogin;
 import com.cafe.shop.member.dto.Member;
 import com.cafe.shop.member.service.MemberService;
 import com.cafe.shop.product.dto.Product;
@@ -33,11 +34,13 @@ public class PageController {
         return "index";
     }
 
+    @NonLogin
     @GetMapping("/signupPage")
     public String signupPage() {
         return "user/signup";
     }
 
+    @NonLogin
     @GetMapping("/loginPage")
     public String loginPage() {
         return "user/login";

@@ -30,8 +30,6 @@ public class ProductService {
         List<Product> list = pr.selectProduct(params);
 
         return  new ProductList(list, pagination);
-
-
     }
     public int selectAvailAmount(HashMap<String,String> params){
         return pr.selectAvailAmount(params);
@@ -42,4 +40,5 @@ public class ProductService {
     public HashMap<String, Object> checkAmountProduct(HashMap<String, String> params){
         return pr.checkAmountProduct(params);
     }
+
 }
