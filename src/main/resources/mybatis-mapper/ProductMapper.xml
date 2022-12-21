@@ -69,5 +69,26 @@
             </otherwise>
         </choose>
     </select>
+    <select id="selectAvailAmount" resultType="int" parameterType="HashMap">
+        SELECT amount FROM PRODUCT A
+        WHERE
+            STATUS='판매가능'
+          AND
+            ID=#{id}
+    </select>
+    <select id="checkAvailProductId" resultType="HashMap">
+        SELECT id FROM PRODUCT A
+        WHERE
+            ((MARKETTYPE='기간판매' and ((select count(*) from SELLTIME where (select NOW() from dual)
+                                                                              BETWEEN starttime and endtime)>0))
+                OR
+             MARKETTYPE='상시판매')
+          AND
+            STATUS='판매가능'
+    </select>
 
+    <select id="checkAmountProduct" parameterType="HashMap" resultType="HashMap">
+        SELECT productname,amount FROM PRODUCT
+        WHERE ID=#{id}
+    </select>
 </mapper>

@@ -38,5 +38,14 @@ public class LoginController {
     }
 
 
+    @PostMapping("/checkLogin")
+    public String checkLogin(HttpSession session) {
+
+        if (session.getAttribute("id") != null) {
+            return "logged";
+        } else {
+            return "need";
+        }
+    }
 
 }

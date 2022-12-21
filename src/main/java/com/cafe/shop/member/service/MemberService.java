@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MemberService {
@@ -26,10 +29,52 @@ public class MemberService {
         return result;
     }
 
-
     public Member login(Member member){
         return repo.login(member);
 
     }
 
+    public List<HashMap<String,Object>> selectUserCart(String id){
+        return repo.selectUserCart(id);
+    }
+    public List<HashMap<String,Object>>  selectCart(String id){
+        return repo.selectCart(id);
+
+    }
+    public int updateCartAmount(Map<String,String> param){
+        return repo.updateCartAmount(param);
+    }
+    public int insertCart(Map<String,String> param){
+        return repo.insertCart(param);
+
+    }
+    public int selectAvailAmount(Map<String,String> param){
+        return repo.selectAvailAmount(param);
+    }
+    public int deleteCart(Map<String,String> param){
+        return repo.deleteCart(param);
+    }
+    public int deleteCartAll(String param){
+        return repo.deleteCartAll(param);
+    }
+    public int updateAmountProduct(Map<String, String> param) {
+        return repo.updateAmountProduct(param);
+    }
+
+    public int insertOrderBook(Map<String, String> param) {
+        return repo.insertOrderBook(param);
+    }
+
+    public int insertOrderDetail(Map<String, String> param) {
+        return repo.insertOrderDetail(param);
+    }
+
+    public List<HashMap<String, Object>> selectOrderBook(String id) {
+        return repo.selectOrderBook(id);
+
+    }
+    public List<HashMap<String, Object>> selectOrderDetail(HashMap<String, String> params) {
+        return repo.selectOrderDetail(params);
+
+    }
 }
