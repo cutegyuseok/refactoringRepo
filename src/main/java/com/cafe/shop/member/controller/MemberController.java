@@ -38,27 +38,7 @@ public class MemberController {
         List<Map<String, String>> putList = new ArrayList<Map<String, String>>();
         if(!ms.addTempCart(pocket,String.valueOf(((Member)session.getAttribute("id")).getId()),putList)
                 || !ms.checkMaxAmount(putList))return "amount";
-
-        for (Map<String, String> cart : putList) {
-            String flag = cart.get("flag");
-            if (flag.equals("true")) {
-                if (Integer.parseInt(String.valueOf(cart.get("amount"))) > 0)
-                    ms.updateCartAmount(cart);
-            } else {
-                if (Integer.parseInt(String.valueOf(cart.get("amount"))) > 0)
-                    ms.insertCart(cart);
-            }
-        }
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String paramText = mapper.writeValueAsString(putList);
-            return paramText;
-        } catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return "success";
+        return ms.cartVariation(putList);
     }
 
     @Login

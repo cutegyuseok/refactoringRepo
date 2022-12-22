@@ -3,6 +3,8 @@ package com.cafe.shop.member.service;
 import com.cafe.shop.mapper.MemberMapper;
 import com.cafe.shop.member.dto.Member;
 import com.cafe.shop.member.repository.MemberRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -129,5 +131,29 @@ public class MemberService {
             return false;
         }
         return true;
+    }
+
+    public String  cartVariation(List<Map<String, String>> putList){
+        for (Map<String, String> cart : putList) {
+            String flag = cart.get("flag");
+            if (flag.equals("true")) {
+                if (Integer.parseInt(String.valueOf(cart.get("amount"))) > 0)
+                    updateCartAmount(cart);
+            } else {
+                if (Integer.parseInt(String.valueOf(cart.get("amount"))) > 0)
+                    insertCart(cart);
+            }
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            String paramText = mapper.writeValueAsString(putList);
+            return paramText;
+        } catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            return"success";
+        }
+
     }
 }
