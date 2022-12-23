@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class MemberService {
@@ -155,5 +152,79 @@ public class MemberService {
             return"success";
         }
 
+    }
+
+
+    public String confirmBuying(String  userid,Object pocket,List<HashMap<String, Object>> idList){
+        int total = 0;
+        int minTot = 0;
+        List<Map<String, String>> putList = new ArrayList<Map<String, String>>();
+        Map<String, String> accParam = new HashMap<>();
+
+        accParam.put("userid",userid);
+
+        List<HashMap<String, Object>> cartSaved = selectCart(userid);
+
+        Map<String, List<LinkedHashMap<String, String>>> param = (Map<String, List<LinkedHashMap<String, String>>>) pocket;
+        List<LinkedHashMap<String, String>> cartList = param.get("pocket");
+        for (LinkedHashMap<String, String> one : cartList) {
+            boolean avail=true;
+            String flag = "false";
+            int amount = 0;
+            String cate = "";
+
+            for (int i = 0; i < cartSaved.size(); i++) {
+                if (String.valueOf(cartSaved.get(i).get("productid")).equals(String.valueOf(one.get("id")))) {
+                    flag = "true";
+                    amount = Integer.parseInt(String.valueOf(cartSaved.get(i).get("amount")));
+                    cate = String.valueOf(cartSaved.get(i).get("catename"));
+                }
+                for( Map<String, Object> id: idList) {
+                    String singleId=String.valueOf(id.get("id"));
+                    if (String.valueOf(cartSaved.get(i).get("productid")).equals(singleId)) {
+                        avail=false;
+                    }
+                }
+                if(avail) {
+                    return "avail";
+                }
+            }
+            int added = Integer.parseInt(String.valueOf(one.get("amount")));
+
+            if (cate.equals("쿠키"))
+                minTot += added;
+
+            Map<String, String> daoMap = new HashMap<>();
+            daoMap.put("productid", String.valueOf(one.get("id")));
+            daoMap.put("amount", added + "");
+            daoMap.put("userid", userid);
+            daoMap.put("flag", flag);
+
+            if (flag.equals("false")) {
+                cate = one.get("cate");
+            }
+            daoMap.put("cate", cate);
+
+            if (cate.equals("쿠키")) {
+                if (added > 5) {
+                    return "amount";
+                }
+            }
+            putList.add(daoMap);
+        }
+
+        if (minTot < 4&& minTot>0) {
+            return "amount";
+        }
+
+        for (Map<String, String> cart : putList) {
+            if (cart.get("cate").equals("쿠키"))
+                total += Integer.parseInt(cart.get("amount"));
+        }
+        if (total > 14) {
+            return "amount";
+        }
+
+        return "success";
     }
 }

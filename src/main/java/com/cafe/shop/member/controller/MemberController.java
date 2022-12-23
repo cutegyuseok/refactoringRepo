@@ -60,80 +60,9 @@ public class MemberController {
     @Login
     @PostMapping("/confirmBuying")
     public  String confirmBuying(@RequestBody(required = false) Object pocket, HttpSession session) {
-        String userid = null;
-        int total = 0;
-        int minTot = 0;
-        List<Map<String, String>> putList = new ArrayList<Map<String, String>>();
-        Map<String, String> accParam = new HashMap<>();
-
-        userid=((Member) session.getAttribute("id")).getId();
-        accParam.put("userid", ((Member) session.getAttribute("id")).getId());
-
-        List<HashMap<String, Object>> cartSaved = ms.selectCart(userid);
-
-        Map<String, List<LinkedHashMap<String, String>>> param = (Map<String, List<LinkedHashMap<String, String>>>) pocket;
-        List<LinkedHashMap<String, String>> cartList = param.get("pocket");
+        String userid=((Member) session.getAttribute("id")).getId();
         List<HashMap<String, Object>> idList=ps.checkAvailProductId();
-        for (LinkedHashMap<String, String> one : cartList) {
-            boolean avail=true;
-            String flag = "false";
-            int amount = 0;
-            String cate = "";
-
-            for (int i = 0; i < cartSaved.size(); i++) {
-                if (String.valueOf(cartSaved.get(i).get("productid")).equals(String.valueOf(one.get("id")))) {
-                    flag = "true";
-                    amount = Integer.parseInt(String.valueOf(cartSaved.get(i).get("amount")));
-                    cate = String.valueOf(cartSaved.get(i).get("catename"));
-                }
-                for( Map<String, Object> id: idList) {
-                    String singleId=String.valueOf(id.get("id"));
-                    if (String.valueOf(cartSaved.get(i).get("productid")).equals(singleId)) {
-                        avail=false;
-                    }
-                }
-                if(avail) {
-                    return "avail";
-                }
-            }
-            int added = Integer.parseInt(String.valueOf(one.get("amount")));
-
-            if (cate.equals("쿠키"))
-                minTot += added;
-
-            Map<String, String> daoMap = new HashMap<>();
-            daoMap.put("productid", String.valueOf(one.get("id")));
-            daoMap.put("amount", added + "");
-            daoMap.put("userid", userid);
-            daoMap.put("flag", flag);
-
-            if (flag.equals("false")) {
-                cate = one.get("cate");
-            }
-            daoMap.put("cate", cate);
-
-            if (cate.equals("쿠키")) {
-                if (added > 5) {
-                    return "amount";
-                }
-            }
-            putList.add(daoMap);
-        }
-
-        if (minTot < 4&& minTot>0) {
-            return "amount";
-        }
-
-        for (Map<String, String> cart : putList) {
-            if (cart.get("cate").equals("쿠키"))
-                total += Integer.parseInt(cart.get("amount"));
-        }
-        if (total > 14) {
-            return "amount";
-        }
-
-        return "success";
-
+        return ms.confirmBuying(userid,pocket,idList);
     }
 
     @Login
