@@ -73,14 +73,13 @@ public class MemberController {
         Member m=(Member) session.getAttribute("id");
 
         Map<String, String> accParam = new HashMap<>();
-        userid=((Member) session.getAttribute("id")).getId();
+        userid=m.getId();
 
 
         Map<String, List<LinkedHashMap<String, String>>> param = (Map<String, List<LinkedHashMap<String, String>>>) pocket;
 
         LinkedHashMap<String, String> user = new LinkedHashMap<>();
         List<LinkedHashMap<String, String>> cart = param.get("pocket");
-
 
         user.put("name",m.getName());
         user.put("phone",m.getPhone());
